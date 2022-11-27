@@ -1,6 +1,7 @@
-import { authenticatedFetch } from "@shopify/app-bridge-utils";
-import { useAppBridge } from "@shopify/app-bridge-react";
-import { Redirect } from "@shopify/app-bridge/actions";
+import { authenticatedFetch, getSessionToken } from '@shopify/app-bridge-utils'
+import { useAppBridge } from '@shopify/app-bridge-react'
+import { Redirect } from '@shopify/app-bridge/actions'
+import axios from 'axios'
 
 /**
  * A hook that returns an auth-aware fetch function.
@@ -15,28 +16,32 @@ import { Redirect } from "@shopify/app-bridge/actions";
  * @returns {Function} fetch function
  */
 export function useAuthenticatedFetch() {
-  const app = useAppBridge();
-  const fetchFunction = authenticatedFetch(app);
+  const app = useAppBridge()
+  const fetchFunction = authenticatedFetch(app)
+
+  // console.log(token)
 
   return async (uri, options) => {
-    const response = await fetchFunction(uri, options);
-    checkHeadersForReauthorization(response.headers, app);
-    return response;
-  };
+    const token = await getSessionToken(app)
+    const response = await fetchFunction(uri, {
+      ...options,
+    })
+    checkHeadersForReauthorization(response.headers, app)
+    return response
+  }
 }
 
 function checkHeadersForReauthorization(headers, app) {
-  if (headers.get("X-Shopify-API-Request-Failure-Reauthorize") === "1") {
+  if (headers.get('X-Shopify-API-Request-Failure-Reauthorize') === '1') {
     const authUrlHeader =
-      headers.get("X-Shopify-API-Request-Failure-Reauthorize-Url") ||
-      `/api/auth`;
+      headers.get('X-Shopify-API-Request-Failure-Reauthorize-Url') || `/api/auth`
 
-    const redirect = Redirect.create(app);
+    const redirect = Redirect.create(app)
     redirect.dispatch(
       Redirect.Action.REMOTE,
-      authUrlHeader.startsWith("/")
+      authUrlHeader.startsWith('/')
         ? `https://${window.location.host}${authUrlHeader}`
         : authUrlHeader
-    );
+    )
   }
 }

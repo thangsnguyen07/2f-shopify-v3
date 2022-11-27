@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Card, Heading, TextContainer, DisplayText, TextStyle } from '@shopify/polaris'
+import { useEffect, useState } from 'react'
+import { Card, Heading, TextContainer, DisplayText, TextStyle, Text } from '@shopify/polaris'
 import { Toast } from '@shopify/app-bridge-react'
 import { useAppQuery, useAuthenticatedFetch } from '../hooks'
 
@@ -28,13 +28,19 @@ export function ProductsCard() {
     isLoading: isLoadingCount,
     isRefetching: isRefetchingCount,
   } = useAppQuery({
+    queryKey: ['productCount'],
     url: '/api/products/count',
     reactQueryOptions: {
+      queryKey: ['productCount'],
       onSuccess: () => {
         setIsLoading(false)
       },
     },
   })
+
+  useEffect(() => {
+    console.log(data)
+  }, [data])
 
   const toastMarkup = toastProps.content && !isRefetchingCount && (
     <Toast {...toastProps} onDismiss={() => setToastProps(emptyToastProps)} />
@@ -72,12 +78,12 @@ export function ProductsCard() {
             Sample products are created with a default title and price. You can remove them at any
             time.
           </p>
-          <Heading element='h4'>
+          <Text as='h4' variant='headingLg'>
             TOTAL PRODUCTS
-            <DisplayText size='medium'>
-              <TextStyle variation='strong'>{isLoadingCount ? '-' : data.count}</TextStyle>
-            </DisplayText>
-          </Heading>
+            <Text as='p' variant='heading3xl'>
+              {isLoadingCount ? '-' : 0}
+            </Text>
+          </Text>
         </TextContainer>
       </Card>
     </>

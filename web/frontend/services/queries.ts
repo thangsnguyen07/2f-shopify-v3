@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from 'graphql-request'
 
 export const QUERY_GET_PRODUCTS = gql`
   query ListAllProduct($first: Int!, $sortKey: ProductSortKeys, $query: String) {
@@ -63,6 +63,20 @@ export const QUERY_GET_PRODUCTS_TAGS = gql`
       nodes {
         title
         id
+      }
+    }
+  }
+`
+
+export const QUERY_GET_ALL_POSTS = gql`
+  query ($options: PageQueryOptions) {
+    posts(options: $options) {
+      data {
+        id
+        title
+      }
+      meta {
+        totalCount
       }
     }
   }
